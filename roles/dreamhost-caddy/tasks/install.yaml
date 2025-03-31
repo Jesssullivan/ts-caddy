@@ -1,0 +1,110 @@
+---
+- name: establish ansible group
+  ansible.builtin.group:
+    name: "{{ caddy_group }}"
+  become: true
+
+- name: establish ansible user
+  ansible.builtin.user:
+    name: "{{ caddy_user }}"
+    group: "{{ caddy_group }}"
+  become: true
+   
+- name: Check if Caddy service exists
+  ansible.builtin.shell: |
+    systemctl status caddy.service
+  register: caddy_service_check
+  failed_when: false
+
+- name: Debug msg. caddy service exists
+  ansible.builtin.debug:
+    msg: "Caddy service exists and is accessible."
+  when: caddy_service_check.rc == 0
+
+- name: Debug msg. caddy service does not exist
+  ansible.builtin.debug:
+    msg: "Caddy service does not exist or could not be found."
+  when: caddy_service_check.rc != 0
+
+
+- name: create /var/log/caddy directory
+  file:
+    path: /var/log/caddy
+    state: directory
+    owner: caddy
+    group: caddy
+    mode: '0755'
+  become: true
+
+- name: dnf updates
+  dnf:
+    name:
+      - epel-release
+      - curl
+      - gnupg2
+      - golang
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: caddy keyring updates
+  ansible.builtin.shell: |
+      curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /etc/pki/rpm-gpg/caddy-stable-archive-keyring.gpg
+  args:
+    creates: /etc/pki/rpm-gpg/caddy-stable-archive-keyring.gpg
+  become: yes
+
+- name: xcaddy keyring updates
+  ansible.builtin.shell: |
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key' | gpg --dearmor -o /etc/pki/rpm-gpg/caddy-xcaddy-archive-keyring.gpg
+  args:
+    creates: /etc/pki/rpm-gpg/caddy-xcaddy-archive-keyring.gpg
+  become: yes
+
+- name: caddy repo updates
+  ansible.builtin.shell: |
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/rpm.repo' | tee /etc/yum.repos.d/caddy-stable.repo
+  args:
+    creates: /etc/yum.repos.d/caddy-stable.repo
+  become: yes
+
+- name: xcaddy repo updates
+  ansible.builtin.shell: |
+    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/xcaddy/rpm.repo' | tee /etc/yum.repos.d/caddy-xcaddy.repo
+  args:
+    creates: /etc/yum.repos.d/caddy-xcaddy.repo
+  become: yes
+
+- name: dnf caddy install
+  dnf:
+    name:
+      - caddy
+    state: present
+    update_cache: yes
+  become: yes
+    
+- name: build local caddy binary with dreamhost module
+  ansible.builtin.shell: |
+    export GOBIN=/usr/local/bin
+    go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+    xcaddy build --with github.com/caddy-dns/dreamhost
+    cp ./caddy /usr/local/bin/caddy
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/usr/local/go/bin:/usr/local/bin"
+  become: true
+
+- name: establish caddy service 
+  ansible.builtin.template:
+    src: caddy.service.j2
+    dest: /etc/systemd/system/caddy.service
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: reload caddy service 
+  ansible.builtin.systemd:
+    name: caddy
+    daemon_reload: true
+    enabled: yes
+  become: true

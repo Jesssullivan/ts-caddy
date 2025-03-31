@@ -1,0 +1,7 @@
+---
+- name: install caddy
+  include_tasks:
+    file: install.yaml
+- name: configure caddy
+  include_tasks:
+    file: configure.yaml

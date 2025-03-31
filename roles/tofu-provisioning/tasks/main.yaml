@@ -1,0 +1,35 @@
+- name: ensure tmp tf dir
+  ansible.builtin.file:
+    path: /tmp/opentofu
+    state: directory
+
+- name: ensure tfvars templates
+  ansible.builtin.template:
+    src: digitalocean.auto.tfvars.j2
+    dest: /tmp/opentofu/digitalocean.auto.tfvars
+
+- name: ensure tftpl templates
+  ansible.builtin.template:
+    src: digitalocean.tftpl.j2
+    dest: /tmp/opentofu/digitalocean.tftpl
+
+- name: ensure tf templates
+  ansible.builtin.template:
+    src: main.tf.j2
+    dest: /tmp/opentofu/main.tf
+
+- name: exec tofu init
+  ansible.builtin.command:
+    cmd: tofu init
+    chdir: /tmp/opentofu
+    
+- name: exec tofu apply
+  ansible.builtin.command:
+    cmd: tofu apply -auto-approve
+    chdir: /tmp/opentofu
+
+- name: Wait for droplet to become reachable
+  wait_for_connection:
+    timeout: 900  # 15 minutes
+    delay: 20     # Wait 20 seconds between connection attempts
+  delegate_to: "{{ droplet_name }}"

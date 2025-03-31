@@ -1,0 +1,29 @@
+all:
+  vars:  
+    # tokens, keep these safe:
+    site_tailscale_auth_key: "<TSKEY_AUTH_TOKEN>"
+    site_do_token: "<DO_API_TOKEN>"
+    dreamhost_api_token: <DH_DNS_API_TOKEN>
+    
+    # proxy action:
+    site_name: <target subdomain>
+    site_domain: <your_dh_domain>
+    site_ts_upsteam: "<your_existing_ts_service>:<its port>"
+    
+    # droplet configs:
+    droplet_uname: <yourname>
+    droplet_os: "rockylinux-9-x64"
+    
+    caddy_tls_providers:
+      - provider: dreamhost
+        challenge_type: dns
+        provider_api_token: "{{ dreamhost_api_token }}"
+        resolver_ip: 1.1.1.1
+    
+    caddy_endpoints:
+      - friendly_name: "{{ site_name }}"
+        fqdn: "{{ site_name }}.{{ site_domain }}"
+        upstream: "{{ site_ts_upsteam }}"
+        tls_insecure: false
+        tls_provider: dreamhost
+  

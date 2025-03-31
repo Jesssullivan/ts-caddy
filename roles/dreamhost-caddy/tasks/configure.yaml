@@ -1,0 +1,12 @@
+---
+- name: ensure destination for caddyfile file exists
+  file:
+    path: "{{ caddyfile_path }}"
+    state: directory
+  become: yes
+- name: write caddyfile file
+  template:
+    src: ../templates/Caddyfile.j2
+    dest: "{{ caddyfile_path }}/Caddyfile"
+  notify: restart caddy
+  become: yes

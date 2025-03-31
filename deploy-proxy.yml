@@ -1,0 +1,8 @@
+- hosts: localhost
+  vars:
+    droplet_name: nyc1-sid-search-furryinflate
+  roles:
+    - role: tofu-provisioning
+      delegate_to: localhost
+    - role: dreamhost-caddy
+      delegate_to: "{{ droplet_name }}"

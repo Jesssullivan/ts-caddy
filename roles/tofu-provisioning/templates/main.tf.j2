@@ -1,0 +1,24 @@
+terraform {
+  required_providers {
+    digitalocean = {
+      source  = "digitalocean/digitalocean"
+      version = "~> 2.0"
+    }
+  }
+}
+
+variable "do_token" {}
+variable "tailscale_auth_key" {}
+
+provider "digitalocean" {
+  token = var.do_token
+}
+
+resource "digitalocean_droplet" "droplet" {
+  image     = "{{ droplet_os }}"
+  name      = "{{ droplet_name }}"
+  region    = "nyc1"
+  size      = "s-2vcpu-2gb"
+  ssh_keys  = [43821354]
+  user_data = templatefile("digitalocean.tftpl", { tailscale_auth_key = var.tailscale_auth_key })
+}
