@@ -21,7 +21,7 @@ A single playbook that'll both provision the caddy VM on digitalocean and deploy
 
 
 ***Next steps:***
-- We can use this playbook to provision and deploy mTLS both from clients to the reverse proxy and from the reverse proxy to the host. 
+- We can extend this playbook to provision and deploy mTLS both from clients to the reverse proxy and from the reverse proxy to the host. 
 
 
 **On darwin controllers, you'll need dees:**

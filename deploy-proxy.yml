@@ -1,6 +1,6 @@
 - hosts: localhost
   vars:
-    droplet_name: nyc1-sid-search-furryinflate
+    droplet_name: <droplet_and_ts_host_name>
   roles:
     - role: tofu-provisioning
       delegate_to: localhost
