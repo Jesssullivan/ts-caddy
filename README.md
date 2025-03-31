@@ -1,7 +1,7 @@
 
 ## The scenario:
 
-It is the weekend; you are feeling under the weather.  Your friend from Bangor is visting.  In a theraflu and banana liquor fueled adventure, you end up buying a your friend a funny domain on dreamhost.  You've to deployed a funny application to the cluster in the basement (the until recently pretty secure one, the one behind the virtualized openwrt router using the finnish exit nodes).  You remember the virtualized router in front of that cluster is equipt to do tailscale subnetting. 
+It is the weekend; you are feeling under the weather.  Your friend from Bangor is visting.  In a theraflu and banana liquor fueled adventure, you end up buying a your friend a funny domain on dreamhost.  You've decided to deploy a funny application to the cluster in the basement (the until recently pretty secure one, the one behind the virtualized openwrt router using the finnish exit nodes).  You remember the virtualized router in front of that cluster is equipt to do tailscale subnetting. 
 
 **The controller and services:**
 - You are on a mac that is on your tailscale network, this'll be the ansible controller and tofu controller.  
